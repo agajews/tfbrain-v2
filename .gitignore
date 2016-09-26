@@ -1,0 +1,9 @@
+data/*
+params/*
+logs/*
+*.log
+*.swp
+*.pyc
+*.pyo
+*/__pycache__
+utils/*.npy
