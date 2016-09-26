@@ -291,7 +291,7 @@ class NetOnSeq(Layer):
         return 'net_on_seq'
 
     def output_fn(self, state):
-        input_layer = self.net.get_layers_list()[0]
+        input_layer = self.net.get_layers()[0]
         input_layer.set_passthrough(state)
         self.net.build_output()
         return input_layer.get_output()

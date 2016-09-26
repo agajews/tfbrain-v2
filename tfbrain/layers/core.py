@@ -98,7 +98,7 @@ class Layer(object):
 
     def get_all_params(self, just_trainable=False,
                        eval_values=False, flatten=False):
-        layers = self.get_layers_dict()
+        layers = self.get_layers(dictionary=True)
         params = {l_n: l.get_params() for (l_n, l) in layers.items()}
         if just_trainable:
             params = {l_n: l_p for (l_n, l_p) in params.items()
@@ -131,30 +131,32 @@ class Layer(object):
         return self.set_all_params(src_net.get_all_params(just_trainable),
                                    run_ops=run_ops)
 
-    def _get_layers_list(self, layers):
+    def _get_layers(self, layers):
         for layer in self.incoming:
-            layers = layer._get_layers_list(layers)
+            layers = layer._get_layers(layers)
         layers.append(self)
         return layers
 
-    def get_layers_list(self):
-        '''Returns topologically sorted list
-        of layers leading up to and including this one'''
-        return self._get_layers_list([])
-
-    def get_layers_dict(self):
-        return {l.get_name(): l for l in self.get_layers_list()}
+    def get_layers(self, dictionary=False):
+        '''If not dictionary, returns topologically sorted list
+        of layers leading up to and including this one,
+        else returns a dictionary of layers inculding this one'''
+        layers = self._get_layers([])
+        if not dictionary:
+            return layers
+        else:
+            return {l.get_name(): l for l in layers}
 
     def get_input_vars(self):
         input_vars = {}
-        for layer in self.get_layers_list():
+        for layer in self.get_layers():
             if len(layer.incoming) == 0:  # InputLayer
                 input_vars[layer.get_name()] = layer.get_input_var()
         return input_vars
 
     def get_supp_feed_dict(self, train=False):
         supp_feed_dict = {}
-        for layer in self.get_layers_list():
+        for layer in self.get_layers():
             supp_feed_dict.update(layer._get_supp_feed_dict(train))
         return supp_feed_dict
 
